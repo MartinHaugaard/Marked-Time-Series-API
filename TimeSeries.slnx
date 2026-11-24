@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TimeSeries.Api/TimeSeries.Api.csproj" />
+    <Project Path="src/TimeSeries.Core/TimeSeries.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TimeSeries.Tests/TimeSeries.Tests.csproj" />
+  </Folder>
+</Solution>
