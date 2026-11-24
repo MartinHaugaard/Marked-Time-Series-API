@@ -1,1 +1,46 @@
 @TimeSeries.Api_HostAddress = http://localhost:5186
+
+### Create a production record
+# @name create
+POST {{TimeSeries.Api_HostAddress}}/api/timeseries
+Content-Type: application/json
+
+{
+  "timestamp": "2026-11-21T12:00:00Z",
+  "type": "Production",
+  "biddingZone": "DK1",
+  "energySource": "Wind",
+  "value": 460.5
+}
+
+### Get the record just created
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries/{{create.response.body.$.id}}
+
+### Update it
+PUT {{TimeSeries.Api_HostAddress}}/api/timeseries/{{create.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "timestamp": "2026-11-21T12:00:00Z",
+  "type": "Production",
+  "biddingZone": "DK1",
+  "energySource": "Wind",
+  "value": 475.0
+}
+
+### Delete it
+DELETE {{TimeSeries.Api_HostAddress}}/api/timeseries/{{create.response.body.$.id}}
+
+### Unknown ID -> 404
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries/00000000-0000-0000-0000-000000000001
+
+### Invalid: flow without target zone -> 400
+POST {{TimeSeries.Api_HostAddress}}/api/timeseries
+Content-Type: application/json
+
+{
+  "timestamp": "2026-11-21T12:00:00Z",
+  "type": "Flow",
+  "biddingZone": "DK1",
+  "value": 300
+}
