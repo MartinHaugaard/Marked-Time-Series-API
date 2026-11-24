@@ -30,4 +30,11 @@ public class TimeSeriesController : ControllerBase
         var record = await _timeSeriesService.GetAsync(id);
         return record.ToResponse();
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteById(Guid id)
+    {
+        await _timeSeriesService.DeleteAsync(id);
+        return NoContent();
+    }
 }

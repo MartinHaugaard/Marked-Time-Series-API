@@ -32,5 +32,12 @@ namespace TimeSeries.Core.TimeSeries
 
             return record;
         }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var success = await _repository.DeleteAsync(id);
+            if (!success)
+                throw new NotFoundException($"Time series record '{id}' was not found.");
+        }
     }
 }

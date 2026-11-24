@@ -5,5 +5,7 @@
         public Task<TimeSeriesRecord> CreateAsync(TimeSeriesRecord record);
 
         public Task<TimeSeriesRecord?> GetAsync(Guid id);
+
+        public Task<bool> DeleteAsync(Guid id);
     }
 }

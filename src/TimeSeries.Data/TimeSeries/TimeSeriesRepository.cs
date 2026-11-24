@@ -18,5 +18,16 @@ namespace TimeSeries.Data.TimeSeries
             var entity = await db.TimeSeries.FindAsync(id);
             return entity?.ToRecord();
         }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await db.TimeSeries.FindAsync(id);
+            if (entity is null)
+                return false;
+
+            db.TimeSeries.Remove(entity);
+            await db.SaveChangesAsync();
+            return true;
+        }
     }
 }

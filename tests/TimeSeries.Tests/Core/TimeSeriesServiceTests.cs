@@ -51,6 +51,37 @@ public class TimeSeriesServiceTests
         _mockRepository.Verify(x => x.CreateAsync(It.IsAny<TimeSeriesRecord>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Delete_WhenRecordExists_DeletesViaRepository()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        _mockRepository.Setup(x => x.DeleteAsync(id)).ReturnsAsync(true);
+        var sut = GetSut();
+
+        // Act
+        await sut.DeleteAsync(id);
+
+        // Assert
+        _mockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Delete_WhenRecordDoesNotExist_ThrowsNotFoundException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        _mockRepository.Setup(x => x.DeleteAsync(id)).ReturnsAsync(false);
+        var sut = GetSut();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.DeleteAsync(id));
+
+        // Assert
+        Assert.Equal($"Time series record '{id}' was not found.", exception.Message);
+    }
+
+
     private TimeSeriesService GetSut()
     {
         var sut = new TimeSeriesService(_mockRepository.Object);

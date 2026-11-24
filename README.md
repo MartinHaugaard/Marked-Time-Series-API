@@ -20,7 +20,7 @@ To experience the code manually a series of calls are also available by using th
 |---|---|---|---|
 | POST | `/api/timeseries` | Create a record | 201, 400 |
 | GET | `/api/timeseries/{id}` | Get a record by ID | 200, 404 |
-
+| DELETE | `/api/timeseries/{id}` | Delete a record | 204, 404 |
 
 Example request body:
 
@@ -65,4 +65,4 @@ Internally, Core throws custom exceptions, which an exception handler in the API
 
 ## What I'd do next
 
-Finish the CRUD operations (Update, Delete and fetch for interval)
+Finish the CRUD operations (Update and fetch for interval)
