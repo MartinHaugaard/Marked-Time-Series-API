@@ -11,28 +11,33 @@ internal sealed class CoreExceptionHandler(IProblemDetailsService problemDetails
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        var (status, title) = exception switch
+        ProblemDetails? problemDetails = exception switch
         {
-            NotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
-            RecordValidationException => (StatusCodes.Status400BadRequest, "Validation failed for Record"),
-            _ => (0, null)
+            NotFoundException => new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Resource not found",
+                Detail = exception.Message
+            },
+            // Same shape as the framework's own model validation errors, so clients only handle one 400 format.
+            RecordValidationException validation => new ValidationProblemDetails(
+                validation.Errors.ToDictionary(e => e.Key, e => e.Value))
+            {
+                Status = StatusCodes.Status400BadRequest
+            },
+            _ => null
         };
 
-        if (status == 0)
+        if (problemDetails is null)
             return false; // not ours, let the default handling produce a 500
 
-        httpContext.Response.StatusCode = status;
+        httpContext.Response.StatusCode = problemDetails.Status!.Value;
 
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
             Exception = exception,
-            ProblemDetails = new ProblemDetails
-            {
-                Status = status,
-                Title = title,
-                Detail = exception.Message
-            }
+            ProblemDetails = problemDetails
         });
     }
 }

@@ -26,7 +26,8 @@ internal class TimeSeriesDbContext(DbContextOptions<TimeSeriesDbContext> options
         entity.Property(e => e.ToBiddingZone).HasConversion<string>();
         entity.Property(e => e.EnergySource).HasConversion<string>();
 
-        // Supports the zone + interval filter
+        // Supports the zone + interval filter, which matches either zone
         entity.HasIndex(e => new { e.BiddingZone, e.Timestamp });
+        entity.HasIndex(e => new { e.ToBiddingZone, e.Timestamp });
     }
 }

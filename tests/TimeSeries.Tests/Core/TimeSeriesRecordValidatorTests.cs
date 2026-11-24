@@ -31,6 +31,24 @@ public class TimeSeriesRecordValidatorTests
         Assert.Throws<RecordValidationException>(() => sut.Validate(record));
     }
 
+    [Fact]
+    public void Validate_SeveralViolations_ReportsAllOfThemPerField()
+    {
+        // Arrange: negative value, not on the hour, and a production without a source
+        var record = TestData.ValidRecord() with
+        {
+            Value = -1,
+            Timestamp = new DateTimeOffset(2026, 11, 21, 12, 30, 0, TimeSpan.Zero),
+            EnergySource = null
+        };
+
+        // Act
+        var exception = Assert.Throws<RecordValidationException>(() => sut.Validate(record));
+
+        // Assert
+        Assert.Equal(["EnergySource", "Timestamp", "Value"], exception.Errors.Keys.Order());
+    }
+
     [Theory]
     [InlineData(RecordType.Production, null, EnergySource.Wind)]
     [InlineData(RecordType.Consumption, null, null)]

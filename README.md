@@ -12,9 +12,11 @@ The SQLite database is created automatically on startup. The database currently 
 
 **note** if the schema changes, it's best to delete the timeseries.db file and restart the service.
 
-The project features a handful of unit tests to be executed with `dotnet test`
+The tests are executed with `dotnet test`.
 
 The unit tests cover mainly the core service class, that holds business logic, including the validation logic and documents the expected behavior for scenarios like missing records, or validation violations.
+
+The integration tests run the full API in memory via `WebApplicationFactory`, each against its own in-memory SQLite database, covering status codes, error responses and filtering.
 
 To experience the code manually TimeSeries.Api.http contains example requests.
 
@@ -45,6 +47,7 @@ Example request body:
 `biddingZone`, `from` and `to`. All are optional; without any, all records are returned.
 `from` is inclusive and `to` is exclusive, so `from=2026-11-21T00:00:00Z&to=2026-11-22T00:00:00Z`
 returns exactly one day. Timestamps must be in UTC (`Z`); `from` must be before `to`.
+The `biddingZone` filter matches records where the zone is either `biddingZone` or `toBiddingZone`, so a flow shows up for both zones involved.
 
 ## The Design
 
@@ -52,9 +55,9 @@ The application features simple CRUD operations, for creating, reading, updating
 
 ### Assumptions
 
-A few assumptions have been made regarding these records.
+I don't have a background in the electricity market, so the model is based on my own reading of the assignment. The assumptions below (hourly resolution, MWh, the three record types, the zones listed) are simplifications I'd want to check with domain experts before building further.
 
-One key assumption is that records work on an hourly basis, at the start of the hour, and that all time is in UTC. Non-UTC timestamps will get rejected.
+One key assumption is that records work on an hourly basis, at the start of the hour, and that all time is in UTC. Non-UTC timestamps will get rejected, and so will timestamps without an offset, since those would otherwise be read in the server's local time zone.
 
 All values are in MWh.
 
@@ -66,9 +69,9 @@ Enums are sent and returned as strings.
 
 ### Validation Rules
 
-Most validations can be inspected in the TimeSeriesRecordValidator.cs file. Only the first triggered violation is reported.
+Most validations can be inspected in the TimeSeriesRecordValidator.cs file. All violations are reported, grouped by field.
 
-Timestamps must be in UTC and on a whole hour.
+Timestamps must include an offset, be in UTC and be on a whole hour.
 
 The value may not be negative.
 
@@ -100,7 +103,9 @@ A filter with no matches returns 200 with an empty list.
 
 ### Error handling
 
-Requests for unknown records return 404, and invalid records return 400. Both are returned as ProblemDetails. 
+Requests for unknown records return 404 as ProblemDetails.
+
+Invalid input returns 400 as ValidationProblemDetails, with an `errors` object listing the messages per field. This is the same shape ASP.NET Core uses for malformed requests (e.g. a missing field or an unknown enum value), so clients only have to handle one 400 format.
 
 Internally, Core throws custom exceptions, which an exception handler in the API layer maps to these status codes.
 

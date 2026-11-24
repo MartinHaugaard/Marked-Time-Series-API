@@ -24,8 +24,10 @@ namespace TimeSeries.Data.TimeSeries
         {
             var query = db.TimeSeries.AsNoTracking();
 
+            // A flow involves two zones, so the zone filter matches either side.
             if (filter.BiddingZone is not null)
-                query = query.Where(e => e.BiddingZone == filter.BiddingZone.Value);
+                query = query.Where(e => e.BiddingZone == filter.BiddingZone.Value
+                                      || e.ToBiddingZone == filter.BiddingZone.Value);
 
             if (filter.From is not null)
                 query = query.Where(e => e.Timestamp >= filter.From.Value);

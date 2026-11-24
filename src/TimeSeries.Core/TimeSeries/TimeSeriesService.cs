@@ -38,14 +38,18 @@ internal class TimeSeriesService : ITimeSeriesService
         if (filter is null)
             throw new ArgumentNullException(nameof(filter));
 
+        var errors = new ValidationErrors();
+
         if (filter.From is not null && filter.From.Value.Offset != TimeSpan.Zero)
-            throw new RecordValidationException("From must be in UTC.");
+            errors.Add(nameof(filter.From), "From must be in UTC.");
 
         if (filter.To is not null && filter.To.Value.Offset != TimeSpan.Zero)
-            throw new RecordValidationException("To must be in UTC.");
+            errors.Add(nameof(filter.To), "To must be in UTC.");
 
         if (filter.From is not null && filter.To is not null && filter.From >= filter.To)
-            throw new RecordValidationException("From must be before To.");
+            errors.Add(nameof(filter.From), "From must be before To.");
+
+        errors.ThrowIfAny();
 
         var recordsTask = _repository.GetAsync(filter);
         return recordsTask;
