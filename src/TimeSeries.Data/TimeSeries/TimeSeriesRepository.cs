@@ -1,4 +1,5 @@
-﻿using TimeSeries.Core.TimeSeries;
+﻿using Microsoft.EntityFrameworkCore;
+using TimeSeries.Core.TimeSeries;
 using TimeSeries.Data.Mapping;
 
 namespace TimeSeries.Data.TimeSeries
@@ -17,6 +18,23 @@ namespace TimeSeries.Data.TimeSeries
         {
             var entity = await db.TimeSeries.FindAsync(id);
             return entity?.ToRecord();
+        }
+
+        public async Task<IReadOnlyList<TimeSeriesRecord>> GetAsync(TimeSeriesFilter filter)
+        {
+            var query = db.TimeSeries.AsNoTracking();
+
+            if (filter.BiddingZone is not null)
+                query = query.Where(e => e.BiddingZone == filter.BiddingZone.Value);
+
+            if (filter.From is not null)
+                query = query.Where(e => e.Timestamp >= filter.From.Value);
+
+            if (filter.To is not null)
+                query = query.Where(e => e.Timestamp < filter.To.Value);
+
+            var entities = await query.OrderBy(e => e.Timestamp).ToListAsync();
+            return entities.Select(e => e.ToRecord()).ToList();
         }
 
         public async Task<bool> DeleteAsync(Guid id)

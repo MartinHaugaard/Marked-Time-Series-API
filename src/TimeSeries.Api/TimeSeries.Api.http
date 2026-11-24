@@ -44,3 +44,22 @@ Content-Type: application/json
   "biddingZone": "DK1",
   "value": 300
 }
+
+### Fetch calls
+### List all records
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries
+
+### Filter by bidding zone
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries?biddingZone=DK1
+
+### Filter by interval
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries?from=2026-11-21T00:00:00Z&to=2026-11-22T00:00:00Z
+
+### Filter by zone and interval
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries?biddingZone=DK1&from=2026-11-21T00:00:00Z&to=2026-11-22T00:00:00Z
+
+### Invalid interval (from after to) -> 400
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries?from=2026-11-22T00:00:00Z&to=2026-11-21T00:00:00Z
+
+### Non-UTC timestamp -> 400 (note: + must be encoded as %2B)
+GET {{TimeSeries.Api_HostAddress}}/api/timeseries?from=2026-11-21T00:00:00%2B01:00

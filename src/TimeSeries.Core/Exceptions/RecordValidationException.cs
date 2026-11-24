@@ -1,6 +1,5 @@
-﻿namespace TimeSeries.Core.Exceptions
+﻿namespace TimeSeries.Core.Exceptions;
+
+public class RecordValidationException(string message) : Exception(message)
 {
-    public class RecordValidationException(string message) : Exception(message)
-    {
-    }
 }

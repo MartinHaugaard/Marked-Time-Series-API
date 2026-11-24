@@ -1,9 +1,8 @@
-﻿namespace TimeSeries.Core.TimeSeries
+﻿namespace TimeSeries.Core.TimeSeries;
+
+public enum RecordType
 {
-    public enum RecordType
-    {
-        Production = 0,
-        Consumption = 1,
-        Flow = 2
-    }
+    Production = 0,
+    Consumption = 1,
+    Flow = 2
 }

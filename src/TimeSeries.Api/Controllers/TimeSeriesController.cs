@@ -31,6 +31,15 @@ public class TimeSeriesController : ControllerBase
         return record.ToResponse();
     }
 
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TimeSeriesResponse>>> Get([FromQuery] TimeSeriesQuery query)
+    {
+        var filter = query.ToFilter();
+        var records = await _timeSeriesService.GetAsync(filter);
+        return Ok(records.ToResponseList());
+    }
+
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteById(Guid id)
     {

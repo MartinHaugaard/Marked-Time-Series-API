@@ -25,7 +25,7 @@ public class TimeSeriesRecordValidatorTests
     public void Validate_InvalidTypeCombination_Throws(RecordType type, BiddingZone? toZone, EnergySource? source)
     {
         // Arrange
-        var record = ValidRecord() with { Type = type, ToBiddingZone = toZone, EnergySource = source };
+        var record = TestData.ValidRecord() with { Type = type, ToBiddingZone = toZone, EnergySource = source };
 
         // Act & Assert
         Assert.Throws<RecordValidationException>(() => sut.Validate(record));
@@ -37,20 +37,10 @@ public class TimeSeriesRecordValidatorTests
     [InlineData(RecordType.Flow, BiddingZone.DK2, null)]
     public void Validate_ValidTypeCombination_DoesNotThrow(RecordType type, BiddingZone? toZone, EnergySource? source)
     {
-        var record = ValidRecord() with { Type = type, ToBiddingZone = toZone, EnergySource = source };
+        var record = TestData.ValidRecord() with { Type = type, ToBiddingZone = toZone, EnergySource = source };
 
         var exception = Record.Exception(() => sut.Validate(record));
 
         Assert.Null(exception);
     }
-
-
-    private static TimeSeriesRecord ValidRecord() => new()
-    {
-        Timestamp = new DateTimeOffset(2026, 11, 21, 12, 0, 0, TimeSpan.Zero),
-        Type = RecordType.Production,
-        BiddingZone = BiddingZone.DK1,
-        EnergySource = EnergySource.Wind,
-        Value = 100m
-    };
 }

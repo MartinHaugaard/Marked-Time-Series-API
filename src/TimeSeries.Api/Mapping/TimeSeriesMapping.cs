@@ -45,4 +45,17 @@ public static class TimeSeriesMappings
 
         };
     }
+
+    public static TimeSeriesFilter ToFilter(this TimeSeriesQuery query)
+    {
+        return new TimeSeriesFilter
+        {
+            To = query.To,
+            From = query.From,
+            BiddingZone = query.BiddingZone
+        };
+    }
+
+    public static List<TimeSeriesResponse> ToResponseList(this IEnumerable<TimeSeriesRecord> records)
+        => records.Select(r => r.ToResponse()).ToList();
 }

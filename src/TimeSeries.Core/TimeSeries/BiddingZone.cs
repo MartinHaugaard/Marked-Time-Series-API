@@ -1,9 +1,8 @@
-﻿namespace TimeSeries.Core.TimeSeries
+﻿namespace TimeSeries.Core.TimeSeries;
+
+public enum BiddingZone
 {
-    public enum BiddingZone
-    {
-        DK1 = 0,
-        DK2 = 1,
-        DE = 2
-    }
+    DK1 = 0,
+    DK2 = 1,
+    DE = 2
 }

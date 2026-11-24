@@ -1,15 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TimeSeries.Data.TimeSeries;
 
-namespace TimeSeries.Data
+namespace TimeSeries.Data;
+
+public static class InitializeDb
 {
-    public static class InitializeDb
+    public static void InitializeDatabase(this IServiceProvider services)
     {
-        public static void InitializeDatabase(this IServiceProvider services)
-        {
-            using var scope = services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<TimeSeriesDbContext>();
-            db.Database.EnsureCreated();
-        }
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TimeSeriesDbContext>();
+        db.Database.EnsureCreated();
     }
 }

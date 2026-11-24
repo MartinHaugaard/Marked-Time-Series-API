@@ -87,7 +87,7 @@ public class TimeSeriesServiceTests
         // Arrange
         var id = Guid.NewGuid();
         // production requires an energy source
-        var invalidRecord = ValidRecord() with { EnergySource = null };
+        var invalidRecord = TestData.ValidRecord() with { EnergySource = null };
         var sut = GetSut();
 
         // Act
@@ -102,7 +102,7 @@ public class TimeSeriesServiceTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var record = ValidRecord();
+        var record = TestData.ValidRecord();
         TimeSeriesRecord? nullRecord = null;
         _mockRepository.Setup(x => x.UpdateAsync(id, record)).ReturnsAsync(nullRecord);
         var sut = GetSut();
@@ -119,7 +119,7 @@ public class TimeSeriesServiceTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var record = ValidRecord();
+        var record = TestData.ValidRecord();
         var stored = record with { Id = id };
         _mockRepository.Setup(x => x.UpdateAsync(id, record)).ReturnsAsync(stored);
         var sut = GetSut();
@@ -132,13 +132,59 @@ public class TimeSeriesServiceTests
         _mockRepository.Verify(x => x.UpdateAsync(id, record), Times.Once);
     }
 
-    private static TimeSeriesRecord ValidRecord() => new()
+    [Theory]
+    [MemberData(nameof(InvalidFilters))]
+    public async Task Get_WhenFilterIsInvalid_ThrowsAndDoesNotQuery(TimeSeriesFilter filter)
     {
-        Timestamp = new DateTimeOffset(2026, 11, 21, 12, 0, 0, TimeSpan.Zero),
-        Type = RecordType.Production,
-        BiddingZone = BiddingZone.DK1,
-        EnergySource = EnergySource.Wind,
-        Value = 100m
+        // Arrange
+        var sut = GetSut();
+
+        // Act
+        await Assert.ThrowsAsync<RecordValidationException>(() => sut.GetAsync(filter));
+
+        // Assert
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<TimeSeriesFilter>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Get_WhenFilterIsValid_ReturnsRecordsFromRepository()
+    {
+        // Arrange
+        var filter = new TimeSeriesFilter
+        {
+            BiddingZone = BiddingZone.DK1,
+            From = new DateTimeOffset(2026, 11, 21, 0, 0, 0, TimeSpan.Zero),
+            To = new DateTimeOffset(2026, 11, 22, 0, 0, 0, TimeSpan.Zero)
+        };
+        IReadOnlyList<TimeSeriesRecord> stored = [TestData.ValidRecord() with { Id = Guid.NewGuid() }];
+        _mockRepository.Setup(x => x.GetAsync(filter)).ReturnsAsync(stored);
+        var sut = GetSut();
+
+        // Act
+        var result = await sut.GetAsync(filter);
+
+        // Assert
+        Assert.Same(stored, result);
+    }
+
+    public static TheoryData<TimeSeriesFilter> InvalidFilters => new()
+    {
+        // From not in UTC
+        new TimeSeriesFilter { From = new DateTimeOffset(2026, 11, 21, 0, 0, 0, TimeSpan.FromHours(1)) },
+        // To not in UTC
+        new TimeSeriesFilter { To = new DateTimeOffset(2026, 11, 22, 0, 0, 0, TimeSpan.FromHours(1)) },
+        // From after To
+        new TimeSeriesFilter
+        {
+            From = new DateTimeOffset(2026, 11, 22, 0, 0, 0, TimeSpan.Zero),
+            To = new DateTimeOffset(2026, 11, 21, 0, 0, 0, TimeSpan.Zero)
+        },
+        // From equal to To (empty interval)s
+        new TimeSeriesFilter
+        {
+            From = new DateTimeOffset(2026, 11, 21, 0, 0, 0, TimeSpan.Zero),
+            To = new DateTimeOffset(2026, 11, 21, 0, 0, 0, TimeSpan.Zero)
+        }
     };
 
 
