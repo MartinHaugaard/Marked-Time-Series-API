@@ -29,5 +29,17 @@ namespace TimeSeries.Data.TimeSeries
             await db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<TimeSeriesRecord?> UpdateAsync(Guid id, TimeSeriesRecord record)
+        {
+            var entity = await db.TimeSeries.FindAsync(id);
+            if (entity is null)
+                return null;
+
+            db.Entry(entity).CurrentValues.SetValues(record.ToEntity(id));
+            await db.SaveChangesAsync();
+
+            return entity.ToRecord();
+        }
     }
 }

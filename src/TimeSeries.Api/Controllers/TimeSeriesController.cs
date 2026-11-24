@@ -37,4 +37,12 @@ public class TimeSeriesController : ControllerBase
         await _timeSeriesService.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<TimeSeriesResponse>> Update(Guid id, UpdateTimeSeriesRequest updateRequest)
+    {
+        var model = updateRequest.ToModel();
+        var updated = await _timeSeriesService.UpdateAsync(id, model);
+        return Ok(updated.ToResponse());
+    }
 }

@@ -39,5 +39,20 @@ namespace TimeSeries.Core.TimeSeries
             if (!success)
                 throw new NotFoundException($"Time series record '{id}' was not found.");
         }
+
+        public async Task<TimeSeriesRecord> UpdateAsync(Guid id, TimeSeriesRecord record)
+        {
+            if (record is null)
+                throw new ArgumentNullException(nameof(record));
+
+            _validator.Validate(record);
+
+            var updated = await _repository.UpdateAsync(id, record);
+
+            if (updated is null)
+                throw new NotFoundException($"Time series record '{id}' was not found.");
+
+            return updated;
+        }
     }
 }

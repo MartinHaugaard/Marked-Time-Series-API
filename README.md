@@ -65,4 +65,4 @@ Internally, Core throws custom exceptions, which an exception handler in the API
 
 ## What I'd do next
 
-Finish the CRUD operations (Update and fetch for interval)
+Finish the CRUD operations that does fetch for interval

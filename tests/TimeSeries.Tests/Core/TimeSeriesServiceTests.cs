@@ -81,6 +81,66 @@ public class TimeSeriesServiceTests
         Assert.Equal($"Time series record '{id}' was not found.", exception.Message);
     }
 
+    [Fact]
+    public async Task Update_WhenRecordIsInvalid_ThrowsAndDoesNotPersist()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        // production requires an energy source
+        var invalidRecord = ValidRecord() with { EnergySource = null };
+        var sut = GetSut();
+
+        // Act
+        await Assert.ThrowsAsync<RecordValidationException>(() => sut.UpdateAsync(id, invalidRecord));
+
+        // Assert
+        _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<TimeSeriesRecord>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Update_WhenRecordDoesNotExist_ThrowsNotFoundException()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var record = ValidRecord();
+        TimeSeriesRecord? nullRecord = null;
+        _mockRepository.Setup(x => x.UpdateAsync(id, record)).ReturnsAsync(nullRecord);
+        var sut = GetSut();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.UpdateAsync(id, record));
+
+        // Assert
+        Assert.Equal($"Time series record '{id}' was not found.", exception.Message);
+    }
+
+    [Fact]
+    public async Task Update_WhenRecordExists_ReturnsUpdatedRecord()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var record = ValidRecord();
+        var stored = record with { Id = id };
+        _mockRepository.Setup(x => x.UpdateAsync(id, record)).ReturnsAsync(stored);
+        var sut = GetSut();
+
+        // Act
+        var result = await sut.UpdateAsync(id, record);
+
+        // Assert
+        Assert.Equal(stored, result);
+        _mockRepository.Verify(x => x.UpdateAsync(id, record), Times.Once);
+    }
+
+    private static TimeSeriesRecord ValidRecord() => new()
+    {
+        Timestamp = new DateTimeOffset(2026, 11, 21, 12, 0, 0, TimeSpan.Zero),
+        Type = RecordType.Production,
+        BiddingZone = BiddingZone.DK1,
+        EnergySource = EnergySource.Wind,
+        Value = 100m
+    };
+
 
     private TimeSeriesService GetSut()
     {
