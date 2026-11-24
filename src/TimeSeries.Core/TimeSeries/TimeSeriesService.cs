@@ -13,20 +13,20 @@ namespace TimeSeries.Core.TimeSeries
             _validator = new TimeSeriesRecordValidator();
         }
 
-        public TimeSeriesRecord Create(TimeSeriesRecord record)
+        public Task<TimeSeriesRecord> CreateAsync(TimeSeriesRecord record)
         {
             if (record is null)
                 throw new ArgumentNullException(nameof(record));
 
             _validator.Validate(record);
 
-            var created = _repository.Create(record);
+            var created = _repository.CreateAsync(record);
             return created;
         }
 
-        public TimeSeriesRecord Get(Guid id)
+        public async Task<TimeSeriesRecord> GetAsync(Guid id)
         {
-            var record = _repository.Get(id);
+            var record = await _repository.GetAsync(id);
             if (record is null)
                 throw new NotFoundException($"Time series record '{id}' was not found.");
 

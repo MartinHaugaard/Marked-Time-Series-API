@@ -1,17 +1,22 @@
 ﻿using TimeSeries.Core.TimeSeries;
+using TimeSeries.Data.Mapping;
 
 namespace TimeSeries.Data.TimeSeries
 {
-    public class TimeSeriesRepository: ITimeSeriesRepository
+    internal class TimeSeriesRepository(TimeSeriesDbContext db) : ITimeSeriesRepository
     {
-        public TimeSeriesRecord Create(TimeSeriesRecord record)
+        public async Task<TimeSeriesRecord> CreateAsync(TimeSeriesRecord record)
         {
-            throw new NotImplementedException();
+            var entity = record.ToEntity(Guid.NewGuid());
+            db.TimeSeries.Add(entity);
+            await db.SaveChangesAsync();
+            return entity.ToRecord();
         }
 
-        public TimeSeriesRecord? Get(Guid id)
+        public async Task<TimeSeriesRecord?> GetAsync(Guid id)
         {
-            return null;
+            var entity = await db.TimeSeries.FindAsync(id);
+            return entity?.ToRecord();
         }
     }
 }

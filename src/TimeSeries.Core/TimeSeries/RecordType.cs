@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TimeSeries.Core.TimeSeries
+﻿namespace TimeSeries.Core.TimeSeries
 {
     public enum RecordType
     {

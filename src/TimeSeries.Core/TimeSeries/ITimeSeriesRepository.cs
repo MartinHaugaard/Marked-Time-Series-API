@@ -2,8 +2,8 @@
 {
     public interface ITimeSeriesRepository
     {
-        public TimeSeriesRecord Create(TimeSeriesRecord record);
+        public Task<TimeSeriesRecord> CreateAsync(TimeSeriesRecord record);
 
-        public TimeSeriesRecord? Get(Guid id);
+        public Task<TimeSeriesRecord?> GetAsync(Guid id);
     }
 }

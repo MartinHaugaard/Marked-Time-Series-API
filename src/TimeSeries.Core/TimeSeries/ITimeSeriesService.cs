@@ -2,7 +2,7 @@
 {
     public interface ITimeSeriesService
     {
-        public TimeSeriesRecord Create(TimeSeriesRecord record);
-        public TimeSeriesRecord Get(Guid id);
+        public Task<TimeSeriesRecord> CreateAsync(TimeSeriesRecord record);
+        public Task<TimeSeriesRecord> GetAsync(Guid id);
     }
 }

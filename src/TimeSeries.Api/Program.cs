@@ -15,7 +15,7 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 
 // Add TimeSeries.Data
-builder.Services.AddData();
+builder.Services.AddData(builder.Configuration.GetConnectionString("TimeSeries")!);
 
 // Add TimeSeries.Core
 builder.Services.AddCore();
@@ -26,6 +26,7 @@ builder.Services.AddExceptionHandler<CoreExceptionHandler>();
 
 var app = builder.Build();
 
+app.Services.InitializeDatabase();
 app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.

@@ -14,20 +14,41 @@ public class TimeSeriesServiceTests
     }
 
     [Fact]
-    public void Get_WhenRecordDoesNotExist_ThrowsNotFoundException()
+    public async Task Get_WhenRecordDoesNotExist_ThrowsNotFoundException()
     {
         // Arrange
         var id = Guid.NewGuid();
 
         TimeSeriesRecord? nullRecord = null;
-        _mockRepository.Setup(x => x.Get(id)).Returns(nullRecord);
+        _mockRepository.Setup(x => x.GetAsync(id)).ReturnsAsync(nullRecord);
         var sut = GetSut();
 
         // Act
-        var response = Assert.Throws<NotFoundException>(() => sut.Get(id));
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.GetAsync(id));
 
         // Assert
-        Assert.Equal($"Time series record '{id}' was not found.", response.Message);
+        Assert.Equal($"Time series record '{id}' was not found.", exception.Message);
+    }
+
+    [Fact]
+    public async Task Create_WhenRecordIsInvalid_ThrowsAndDoesNotPersist()
+    {
+        // Arrange
+        var invalidRecord = new TimeSeriesRecord
+        {
+            Timestamp = new DateTimeOffset(2026, 11, 21, 12, 0, 0, TimeSpan.Zero),
+            Type = RecordType.Flow,
+            BiddingZone = BiddingZone.DK1,
+            ToBiddingZone = null, // a flow requires a target zone
+            Value = 100m
+        };
+        var sut = GetSut();
+
+        // Act
+        await Assert.ThrowsAsync<RecordValidationException>(() => sut.CreateAsync(invalidRecord));
+
+        // Assert
+        _mockRepository.Verify(x => x.CreateAsync(It.IsAny<TimeSeriesRecord>()), Times.Never);
     }
 
     private TimeSeriesService GetSut()
