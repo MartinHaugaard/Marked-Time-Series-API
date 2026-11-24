@@ -8,7 +8,7 @@ namespace TimeSeries.Data
     {
         public static IServiceCollection AddData(this IServiceCollection services)
         {
-            services.AddScoped<ITimeSeriesRepository, TimeSeriesRepository>();
+            services.AddSingleton<ITimeSeriesRepository, TimeSeriesRepository>();
 
             return services;
         }

@@ -10,7 +10,7 @@ namespace TimeSeries.Api.Controllers
     [ApiController]
     public class TimeSeriesController : ControllerBase
     {
-        public readonly ITimeSeriesService _timeSeriesService;
+        private readonly ITimeSeriesService _timeSeriesService;
 
         public TimeSeriesController(ITimeSeriesService timeSeriesService)
         {

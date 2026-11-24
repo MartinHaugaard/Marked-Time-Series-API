@@ -20,12 +20,13 @@ builder.Services.AddData();
 // Add TimeSeries.Core
 builder.Services.AddCore();
 
-
 // Deal with 'expected' exceptions such as not finding a record by id.
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<CoreExceptionHandler>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -35,9 +36,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.UseExceptionHandler();
+// app.UseAuthorization();
 
 app.MapControllers();
 

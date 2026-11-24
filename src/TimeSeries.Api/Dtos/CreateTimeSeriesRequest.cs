@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using TimeSeries.Core.TimeSeries;
+﻿using TimeSeries.Core.TimeSeries;
 
 namespace TimeSeries.Api.Dtos
 {
